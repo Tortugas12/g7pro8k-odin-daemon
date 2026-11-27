@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0F1115">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>GameSir G7 Pro 8K • Odin 3 Companion</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1115'/%3E%3Cpath d='M16 26c0-5 4-9 9-9h14c5 0 9 4 9 9l4 15c1 4-2 8-6 8-3 0-5-2-7-4l-3-3h-8l-3 3c-2 2-4 4-7 4-4 0-7-4-6-8l4-15z' fill='%2322C55E'/%3E%3Ccircle cx='24' cy='31' r='3' fill='%230F1115'/%3E%3Ccircle cx='40' cy='28' r='2.3' fill='%230F1115'/%3E%3Ccircle cx='44' cy='32' r='2.3' fill='%230F1115'/%3E%3C/svg%3E">
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22GameSir%20G7%20Pro%208K%20Companion%22%2C%22short_name%22%3A%22G7%20Pro%208K%22%2C%22start_url%22%3A%22/%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22landscape%22%2C%22background_color%22%3A%22%230F1115%22%2C%22theme_color%22%3A%22%230F1115%22%7D">
+  <style>
+    :root {
+      --bg: #0F1115;
+      --surface: #151922;
+      --surface-2: #1B212D;
+      --border: #242933;
+      --border-strong: #323A48;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --xbox: #22C55E;
+      --ds4: #3B82F6;
+      --odin: #06B6D4;
+      --amber: #F59E0B;
+      --danger: #EF4444;
+      --accent: #22C55E;
+      --accent-soft: rgba(34, 197, 94, 0.16);
+      --radius: 14px;
+    }
+
+    body[data-theme="xbox360"] {
+      --accent: #22C55E;
+      --accent-soft: rgba(34, 197, 94, 0.16);
+    }
+    body[data-theme="ds4"] {
+      --accent: #3B82F6;
+      --accent-soft: rgba(59, 130, 246, 0.18);
+    }
+    body[data-theme="odin3"] {
+      --accent: #06B6D4;
+      --accent-soft: rgba(6, 182, 212, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 12px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Top Status Bar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+    }
+    .topbar-left, .topbar-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-2);
+      white-space: nowrap;
+    }
+    .pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .pill.ok { border-color: rgba(34, 197, 94, 0.45); background: rgba(34, 197, 94, 0.12); color: #DCFCE7; }
+    .pill.ok .dot { background: var(--xbox); box-shadow: 0 0 8px var(--xbox); }
+    .pill.odin { border-color: rgba(6, 182, 212, 0.45); background: rgba(6, 182, 212, 0.12); color: #CFFAFE; }
+    .pill.odin .dot { background: var(--odin); }
+    .pill.warn { border-color: rgba(245, 158, 11, 0.55); background: rgba(245, 158, 11, 0.14); color: #FEF3C7; }
+    .pill.warn .dot { background: var(--amber); }
+    .pill.paused { border-color: rgba(148, 163, 184, 0.45); background: rgba(148, 163, 184, 0.12); color: #E2E8F0; }
+
+    .hz-readout {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: #0B0D11;
+      border: 1px solid var(--border);
+    }
+    .hz-readout span { color: var(--accent); font-weight: 700; }
+
+    /* Banners */
+    .banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .banner.show { display: flex; }
+    .banner.warn { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.45); color: #FDE68A; }
+    .banner.info { background: rgba(6, 182, 212, 0.11); border-color: rgba(6, 182, 212, 0.42); color: #CFFAFE; }
+    .banner.danger { background: rgba(239, 68, 68, 0.13); border-color: rgba(239, 68, 68, 0.45); color: #FECACA; }
+    .banner strong { color: #FFFFFF; }
+    .banner code {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    /* Main Landscape-First Two-Column Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.32fr) minmax(320px, 0.92fr);
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #E2E8F0;
+    }
+
+    /* Segmented Controls & Buttons */
+    .seg-group {
+      display: inline-flex;
+      background: #0B0D11;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      padding: 6px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .seg-btn:hover { color: var(--text); }
+    .seg-btn.active {
+      background: var(--accent);
+      color: #091015;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 9px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--accent); background: #222938; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #07110C;
+    }
+    .btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+    .btn.amber {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.5);
+      color: #FDE68A;
+    }
+
+    /* SVG Stage */
+    .svg-stage {
+      background: radial-gradient(circle at 50% 35%, #1A2130 0%, #0E1117 75%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 278px;
+    }
+    .controller-svg {
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      display: none;
+      user-select: none;
+    }
+    .controller-svg.active { display: block; }
+
+    /* Interactive SVG button & analog styles */
+    .svg-btn {
+      fill: #1E2533;
+      stroke: #475569;
+      stroke-width: 1.6;
+      transition: fill 0.06s ease, stroke 0.06s ease, filter 0.06s ease;
+    }
+    .svg-btn.pressed {
+      fill: var(--accent);
+      stroke: #FFFFFF;
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
+    .svg-btn-label {
+      fill: #CBD5E1;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      pointer-events: none;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+    .svg-btn.pressed + .svg-btn-label,
+    .svg-btn-label.pressed {
+      fill: #071014;
+    }
+    .svg-ps-sym {
+      fill: none;
+      stroke: #CBD5E1;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .svg-ps-sym.pressed { stroke: #071014; }
+    .svg-trig-bg { fill: #161C26; stroke: #3B465A; stroke-width: 1.5; }
+    .svg-trig-fill { fill: var(--accent); transition: height 0.04s linear, y 0.04s linear; }
+    .svg-stick-well { fill: #121721; stroke: #384357; stroke-width: 1.8; }
+    .svg-stick-head {
+      fill: #273144;
+      stroke: #64748B;
+      stroke-width: 2;
+      transition: fill 0.06s ease, stroke 0.06s ease;
+    }
+    .svg-stick-head.pressed {
+      fill: var(--accent);
+      stroke: #FFFFFF;
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
+
+    /* Analog Live Readout Strip */
+    .analog-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    @media (max-width: 640px) {
+      .analog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .metric-box {
+      background: #0D1017;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .metric-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .bar-track {
+      height: 6px;
+      background: #1D2330;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.04s linear;
+    }
+
+    /* Circularity Plots Row */
+    .plots-row {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: #0D1017;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    @media (max-width: 640px) {
+      .plots-row { grid-template-columns: 1fr 1fr; }
+      .plots-controls { grid-column: span 2; }
+    }
+    .plot-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .plot-card canvas {
+      background: #090C11;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .plot-meta {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .plot-meta .title {
+      font-family: inherit;
+      font-weight: 700;
+      color: #E2E8F0;
+      margin-bottom: 2px;
+    }
+    .plot-meta .err { color: var(--accent); font-weight: 700; }
+    .plots-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+      min-width: 148px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-row input {
+      accent-color: var(--accent);
+      width: 15px;
+      height: 15px;
+    }
+
+    /* Settings Form (Right Column) */
+    .settings-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #CBD5E1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .field-hint {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .profile-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .profile-opt {
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-strong);
+      background: #0D1017;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .profile-opt .p-title { font-weight: 700; font-size: 13px; display: block; }
+    .profile-opt .p-sub { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+    .profile-opt.active.xbox { border-color: var(--xbox); background: rgba(34, 197, 94, 0.12); }
+    .profile-opt.active.ds4 { border-color: var(--ds4); background: rgba(59, 130, 246, 0.14); }
+
+    .rate-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .rate-pill {
+      padding: 8px 6px;
+      border-radius: 9px;
+      border: 1px solid var(--border-strong);
+      background: #0D1017;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .rate-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #071014;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 11px;
+      background: #0D1017;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #2B3343;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.18s;
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      transition: 0.18s;
+    }
+    .switch input:checked + .slider { background: var(--accent); }
+    .switch input:checked + .slider:before { transform: translateX(18px); }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .preset-btn {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: #0D1017;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .preset-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #FFFFFF;
+    }
+
+    .extra-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .extra-row {
+      display: grid;
+      grid-template-columns: 42px 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+      background: #0D1017;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 6px 8px;
+    }
+    .extra-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 800;
+      font-size: 12px;
+      text-align: center;
+      padding: 4px 0;
+      border-radius: 6px;
+      background: #1C2331;
+      color: var(--accent);
+    }
+    select {
+      width: 100%;
+      background: #151B26;
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    select:disabled { opacity: 0.4; }
+
+    /* Sticky Save Bar */
+    .save-bar {
+      position: sticky;
+      bottom: 8px;
+      background: #111620;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+    .save-bar.dirty { border-color: rgba(245, 158, 11, 0.65); }
+    .dirty-badge {
+      display: none;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #FDE68A;
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .save-bar.dirty .dirty-badge { display: inline-flex; }
+    .save-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .validation-errors {
+      display: none;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      border-radius: 9px;
+      padding: 8px 10px;
+      color: #FECACA;
+      font-size: 12px;
+    }
+    .validation-errors.show { display: block; }
+    .validation-errors ul { margin: 4px 0 0 18px; padding: 0; }
+
+    /* Collapsible Day-1 Diagnostics Drawer */
+    details.diag-drawer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+    }
+    details.diag-drawer summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      color: #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+    }
+    details.diag-drawer summary::-webkit-details-marker { display: none; }
+    .diag-body {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .diag-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .capture-progress {
+      display: none;
+      flex: 1;
+      min-width: 180px;
+      align-items: center;
+      gap: 10px;
+    }
+    .capture-progress.show { display: flex; }
+    .capture-progress .bar-track { flex: 1; height: 8px; margin: 0; }
+
+    table.probe-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: #0D1017;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    table.probe-table th, table.probe-table td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    table.probe-table th { color: var(--muted); font-weight: 700; background: #131822; }
+    table.probe-table td { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: #111827;
+      border: 1px solid var(--accent);
+      color: #FFFFFF;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body data-theme="xbox360">
+  <div class="app">
+    <!-- Top Status Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span>GameSir G7 Pro 8K</span>
+        </div>
+        <div id="conn-pill" class="pill warn">
+          <span class="dot"></span>
+          <span id="conn-label">Disconnected</span>
+        </div>
+        <div class="hz-readout">
+          USB <span id="usb-hz">0</span> Hz &rarr; Emit <span id="emit-hz">0</span> Hz
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div id="odin-pill" class="pill odin">
+          <span class="dot"></span>
+          <span id="odin-label">Built-in Odin 3: Active &amp; Untouched</span>
+        </div>
+        <button id="pause-btn" class="btn" type="button">Pause Daemon</button>
+      </div>
+    </header>
+
+    <!-- Dynamic Status Banners -->
+    <div id="ws-banner" class="banner danger">
+      <div><strong>WebSocket Disconnected:</strong> Reconnecting to local daemon at <code>127.0.0.1:8787</code>&hellip;</div>
+      <span id="ws-retry"></span>
+    </div>
+    <div id="quirk-banner" class="banner warn">
+      <div>
+        <strong>Wired XInput Fallback Detected (3537:10b8):</strong>
+        Hold <code>View + Menu</code> on the GameSir G7 Pro 8K for 3 seconds to restore XInput mode (<code>3537:1034</code>), or use the 2.4GHz USB dongle. Kernel quirk: <code>usbcore.quirks=3537:1034:r</code>.
+      </div>
+    </div>
+    <div id="disconnected-banner" class="banner info">
+      <div>
+        <strong>GameSir G7 Pro 8K Disconnected:</strong> Plug in the 2.4GHz USB dongle or USB-C cable. Showing live read-only <strong>AYN Odin 3</strong> built-in controller below (100% isolated).
+      </div>
+    </div>
+
+    <!-- Main Two-Column Landscape Dashboard -->
+    <main class="main-grid">
+      <!-- Left Column: Live Interactive Controller Tester -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title" id="tester-heading">Live Controller Tester</div>
+          <div class="seg-group" role="tablist" aria-label="Controller View">
+            <button class="seg-btn active" data-view="auto" type="button">Auto</button>
+            <button class="seg-btn" data-view="gamesir" type="button">GameSir</button>
+            <button class="seg-btn" data-view="odin3" type="button">Odin 3 (Read-Only)</button>
+          </div>
+        </div>
+
+        <div class="svg-stage">
+          <!-- 1. XBOX 360 INLINE SVG -->
+          <svg id="svg-xbox360" class="controller-svg active" viewBox="0 0 560 315" aria-label="Xbox 360 Controller">
+            <!-- Triggers LT / RT with live fill -->
+            <rect class="svg-trig-bg" x="96" y="14" width="66" height="28" rx="7" />
+            <rect data-trig-bar="lt" class="svg-trig-fill" x="98" y="40" width="62" height="0" rx="5" />
+            <text class="svg-btn-label" x="129" y="28">LT</text>
+
+            <rect class="svg-trig-bg" x="398" y="14" width="66" height="28" rx="7" />
+            <rect data-trig-bar="rt" class="svg-trig-fill" x="400" y="40" width="62" height="0" rx="5" />
+            <text class="svg-btn-label" x="431" y="28">RT</text>
+
+            <!-- Bumpers LB / RB -->
+            <rect data-btn="lb" class="svg-btn" x="86" y="48" width="88" height="22" rx="9" />
+            <text data-lbl="lb" class="svg-btn-label" x="130" y="59">LB</text>
+            <rect data-btn="rb" class="svg-btn" x="386" y="48" width="88" height="22" rx="9" />
+            <text data-lbl="rb" class="svg-btn-label" x="430" y="59">RB</text>
+
+            <!-- Controller Shell -->
+            <path d="M116 74 C76 74 52 118 42 186 C35 232 54 276 84 276 C112 276 130 236 154 218 L406 218 C430 236 448 276 476 276 C506 276 525 232 518 186 C508 118 484 74 444 74 Z"
+                  fill="#171C26" stroke="#30384A" stroke-width="2.5" />
+
+            <!-- Center Guide / View / Menu -->
+            <circle data-btn="guide" class="svg-btn" cx="280" cy="112" r="17" />
+            <text data-lbl="guide" class="svg-btn-label" x="280" y="112">XBOX</text>
+            <circle data-btn="view" class="svg-btn" cx="232" cy="136" r="11" />
+            <text data-lbl="view" class="svg-btn-label" x="232" y="136" font-size="9">VW</text>
+            <circle data-btn="menu" class="svg-btn" cx="328" cy="136" r="11" />
+            <text data-lbl="menu" class="svg-btn-label" x="328" y="136" font-size="9">MN</text>
+
+            <!-- Left Stick (Asymmetric Top-Left) -->
+            <circle class="svg-stick-well" cx="144" cy="132" r="32" />
+            <g data-stick="ls" transform="translate(0,0)">
+              <circle data-btn="ls_click" class="svg-stick-head" cx="144" cy="132" r="18" />
+              <text data-lbl="ls_click" class="svg-btn-label" x="144" y="132">LS</text>
+            </g>
+
+            <!-- D-Pad -->
+            <rect data-btn="dpad_up" class="svg-btn" x="196" y="160" width="22" height="22" rx="4" />
+            <rect data-btn="dpad_down" class="svg-btn" x="196" y="200" width="22" height="22" rx="4" />
+            <rect data-btn="dpad_left" class="svg-btn" x="176" y="180" width="22" height="22" rx="4" />
+            <rect data-btn="dpad_right" class="svg-btn" x="216" y="180" width="22" height="22" rx="4" />
+            <rect x="198" y="182" width="18" height="18" rx="3" fill="#181F2C" />
+
+            <!-- Right Stick -->
+            <circle class="svg-stick-well" cx="348" cy="190" r="30" />
+            <g data-stick="rs" transform="translate(0,0)">
+              <circle data-btn="rs_click" class="svg-stick-head" cx="348" cy="190" r="17" />
+              <text data-lbl="rs_click" class="svg-btn-label" x="348" y="190">RS</text>
+            </g>
+
+            <!-- Face Buttons A/B/X/Y -->
+            <circle data-btn="y" class="svg-btn" cx="422" cy="104" r="14" />
+            <text data-lbl="y" class="svg-btn-label" x="422" y="104">Y</text>
+            <circle data-btn="x" class="svg-btn" cx="394" cy="132" r="14" />
+            <text data-lbl="x" class="svg-btn-label" x="394" y="132">X</text>
+            <circle data-btn="b" class="svg-btn" cx="450" cy="132" r="14" />
+            <text data-lbl="b" class="svg-btn-label" x="450" y="132">B</text>
+            <circle data-btn="a" class="svg-btn" cx="422" cy="160" r="14" />
+            <text data-lbl="a" class="svg-btn-label" x="422" y="160">A</text>
+
+            <!-- Dedicated Extra Paddles / Mini-Bumpers L4 R4 L5 R5 -->
+            <rect data-extra="l5" class="svg-btn" x="178" y="48" width="44" height="20" rx="6" />
+            <text data-extra-lbl="l5" class="svg-btn-label" x="200" y="58" font-size="10">L5</text>
+            <rect data-extra="r5" class="svg-btn" x="338" y="48" width="44" height="20" rx="6" />
+            <text data-extra-lbl="r5" class="svg-btn-label" x="360" y="58" font-size="10">R5</text>
+
+            <rect data-extra="l4" class="svg-btn" x="170" y="256" width="84" height="26" rx="8" />
+            <text data-extra-lbl="l4" class="svg-btn-label" x="212" y="269">L4 Paddle</text>
+            <rect data-extra="r4" class="svg-btn" x="306" y="256" width="84" height="26" rx="8" />
+            <text data-extra-lbl="r4" class="svg-btn-label" x="348" y="269">R4 Paddle</text>
+          </svg>
+
+          <!-- 2. DUALSHOCK 4 INLINE SVG -->
+          <svg id="svg-ds4" class="controller-svg" viewBox="0 0 560 315" aria-label="DualShock 4 Controller">
+            <!-- Triggers L2 / R2 with live fill -->
+            <rect class="svg-trig-bg" x="96" y="14" width="66" height="28" rx="7" />
+            <rect data-trig-bar="lt" class="svg-trig-fill" x="98" y="40" width="62" height="0" rx="5" />
+            <text class="svg-btn-label" x="129" y="28">L2</text>
+
+            <rect class="svg-trig-bg" x="398" y="14" width="66" height="28" rx="7" />
+            <rect data-trig-bar="rt" class="svg-trig-fill" x="400" y="40" width="62" height="0" rx="5" />
+            <text class="svg-btn-label" x="431" y="28">R2</text>
+
+            <!-- Bumpers L1 / R1 -->
+            <rect data-btn="lb" class="svg-btn" x="86" y="48" width="88" height="22" rx="9" />
+            <text data-lbl="lb" class="svg-btn-label" x="130" y="59">L1</text>
+            <rect data-btn="rb" class="svg-btn" x="386" y="48" width="88" height="22" rx="9" />
+            <text data-lbl="rb" class="svg-btn-label" x="430" y="59">R1</text>
+
+            <!-- DS4 Shell -->
+            <path d="M112 74 C72 74 48 122 38 192 C32 238 56 278 86 278 C114 278 134 234 166 218 L394 218 C426 234 446 278 474 278 C504 278 528 238 522 192 C512 122 488 74 448 74 Z"
+                  fill="#161C29" stroke="#313C52" stroke-width="2.5" />
+
+            <!-- Touchpad + Share / Options / PS -->
+            <rect x="220" y="84" width="120" height="52" rx="9" fill="#0F141F" stroke="#354259" stroke-width="1.6" />
+            <text x="280" y="112" fill="#475569" font-size="10" font-weight="700" text-anchor="middle">TOUCHPAD</text>
+
+            <rect data-btn="view" class="svg-btn" x="190" y="88" width="18" height="28" rx="7" />
+            <text data-lbl="view" class="svg-btn-label" x="199" y="102" font-size="8">SH</text>
+            <rect data-btn="menu" class="svg-btn" x="352" y="88" width="18" height="28" rx="7" />
+            <text data-lbl="menu" class="svg-btn-label" x="361" y="102" font-size="8">OP</text>
+            <circle data-btn="guide" class="svg-btn" cx="280" cy="186" r="14" />
+            <text data-lbl="guide" class="svg-btn-label" x="280" y="186" font-size="10">PS</text>
+
+            <!-- D-Pad (Top-Left) -->
+            <rect data-btn="dpad_up" class="svg-btn" x="128" y="102" width="22" height="22" rx="4" />
+            <rect data-btn="dpad_down" class="svg-btn" x="128" y="146" width="22" height="22" rx="4" />
+            <rect data-btn="dpad_left" class="svg-btn" x="106" y="124" width="22" height="22" rx="4" />
+            <rect data-btn="dpad_right" class="svg-btn" x="150" y="124" width="22" height="22" rx="4" />
+
+            <!-- Symmetric Sticks L3 / R3 -->
+            <circle class="svg-stick-well" cx="212" cy="186" r="30" />
+            <g data-stick="ls" transform="translate(0,0)">
+              <circle data-btn="ls_click" class="svg-stick-head" cx="212" cy="186" r="17" />
+              <text data-lbl="ls_click" class="svg-btn-label" x="212" y="186">L3</text>
+            </g>
+
+            <circle class="svg-stick-well" cx="348" cy="186" r="30" />
+            <g data-stick="rs" transform="translate(0,0)">
+              <circle data-btn="rs_click" class="svg-stick-head" cx="348" cy="186" r="17" />
+              <text data-lbl="rs_click" class="svg-btn-label" x="348" y="186">R3</text>
+            </g>
+
+            <!-- PlayStation Symbols (Triangle / Square / Circle / Cross) -->
+            <circle data-btn="y" class="svg-btn" cx="422" cy="106" r="14" />
+            <polygon data-lbl="y" class="svg-ps-sym" points="422,98 415,111 429,111" />
+
+            <circle data-btn="x" class="svg-btn" cx="394" cy="134" r="14" />
+            <rect data-lbl="x" class="svg-ps-sym" x="388" y="128" width="12" height="12" rx="1.5" />
+
+            <circle data-btn="b" class="svg-btn" cx="450" cy="134" r="14" />
+            <circle data-lbl="b" class="svg-ps-sym" cx="450" cy="134" r="6.5" />
+
+            <circle data-btn="a" class="svg-btn" cx="422" cy="162" r="14" />
+            <path data-lbl="a" class="svg-ps-sym" d="M416 156 L428 168 M428 156 L416 168" />
+
+            <!-- Extra Buttons L4 R4 L5 R5 -->
+            <rect data-extra="l5" class="svg-btn" x="178" y="48" width="44" height="20" rx="6" />
+            <text data-extra-lbl="l5" class="svg-btn-label" x="200" y="58" font-size="10">L5</text>
+            <rect data-extra="r5" class="svg-btn" x="338" y="48" width="44" height="20" rx="6" />
+            <text data-extra-lbl="r5" class="svg-btn-label" x="360" y="58" font-size="10">R5</text>
+
+            <rect data-extra="l4" class="svg-btn" x="170" y="256" width="84" height="26" rx="8" />
+            <text data-extra-lbl="l4" class="svg-btn-label" x="212" y="269">L4 Paddle</text>
+            <rect data-extra="r4" class="svg-btn" x="306" y="256" width="84" height="26" rx="8" />
+            <text data-extra-lbl="r4" class="svg-btn-label" x="348" y="269">R4 Paddle</text>
+          </svg>
+
+          <!-- 3. AYN ODIN 3 HANDHELD INLINE SVG (READ-ONLY) -->
+          <svg id="svg-odin3" class="controller-svg" viewBox="0 0 560 315" aria-label="AYN Odin 3 Handheld Read-Only">
+            <!-- Triggers L2 / R2 -->
+            <rect class="svg-trig-bg" x="56" y="20" width="70" height="26" rx="7" />
+            <rect data-trig-bar="lt" class="svg-trig-fill" x="58" y="44" width="66" height="0" rx="5" />
+            <text class="svg-btn-label" x="91" y="33">L2</text>
+
+            <rect class="svg-trig-bg" x="434" y="20" width="70" height="26" rx="7" />
+            <rect data-trig-bar="rt" class="svg-trig-fill" x="436" y="44" width="66" height="0" rx="5" />
+            <text class="svg-btn-label" x="469" y="33">R2</text>
+
+            <!-- Bumpers L1 / R1 -->
+            <rect data-btn="lb" class="svg-btn" x="48" y="52" width="88" height="20" rx="8" />
+            <text data-lbl="lb" class="svg-btn-label" x="92" y="62">L1</text>
+            <rect data-btn="rb" class="svg-btn" x="424" y="52" width="88" height="20" rx="8" />
+            <text data-lbl="rb" class="svg-btn-label" x="468" y="62">R1</text>
+
+            <!-- Handheld Body Silhouette -->
+            <rect x="20" y="76" width="520" height="214" rx="56" fill="#141B26" stroke="#2D4356" stroke-width="2.6" />
+
+            <!-- Center 16:9 Screen Bezel + Read-Only Isolated Watermark -->
+            <rect x="148" y="92" width="264" height="162" rx="12" fill="#090D14" stroke="#1E3A4C" stroke-width="2" />
+            <rect x="158" y="102" width="244" height="142" rx="8" fill="#0B131D" />
+            <text x="280" y="156" fill="#06B6D4" font-size="14" font-weight="800" text-anchor="middle" letter-spacing="1.2">AYN ODIN 3 PRO</text>
+            <text x="280" y="178" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="middle">Read-Only &bull; Isolated</text>
+            <text x="280" y="198" fill="#475569" font-size="10" text-anchor="middle">Zero EVIOCGRAB &bull; Built-in Untouched</text>
+
+            <!-- Left Stick (Top-Left) -->
+            <circle class="svg-stick-well" cx="86" cy="136" r="27" />
+            <g data-stick="ls" transform="translate(0,0)">
+              <circle data-btn="ls_click" class="svg-stick-head" cx="86" cy="136" r="15" />
+              <text data-lbl="ls_click" class="svg-btn-label" x="86" y="136">LS</text>
+            </g>
+
+            <!-- D-Pad (Lower-Left) -->
+            <rect data-btn="dpad_up" class="svg-btn" x="77" y="182" width="18" height="18" rx="3" />
+            <rect data-btn="dpad_down" class="svg-btn" x="77" y="218" width="18" height="18" rx="3" />
+            <rect data-btn="dpad_left" class="svg-btn" x="59" y="200" width="18" height="18" rx="3" />
+            <rect data-btn="dpad_right" class="svg-btn" x="95" y="200" width="18" height="18" rx="3" />
+
+            <!-- Face Buttons ABXY (Top-Right) -->
+            <circle data-btn="y" class="svg-btn" cx="474" cy="112" r="12" />
+            <text data-lbl="y" class="svg-btn-label" x="474" y="112" font-size="10">Y</text>
+            <circle data-btn="x" class="svg-btn" cx="448" cy="136" r="12" />
+            <text data-lbl="x" class="svg-btn-label" x="448" y="136" font-size="10">X</text>
+            <circle data-btn="b" class="svg-btn" cx="500" cy="136" r="12" />
+            <text data-lbl="b" class="svg-btn-label" x="500" y="136" font-size="10">B</text>
+            <circle data-btn="a" class="svg-btn" cx="474" cy="160" r="12" />
+            <text data-lbl="a" class="svg-btn-label" x="474" y="160" font-size="10">A</text>
+
+            <!-- Right Stick (Lower-Right) -->
+            <circle class="svg-stick-well" cx="474" cy="216" r="27" />
+            <g data-stick="rs" transform="translate(0,0)">
+              <circle data-btn="rs_click" class="svg-stick-head" cx="474" cy="216" r="15" />
+              <text data-lbl="rs_click" class="svg-btn-label" x="474" y="216">RS</text>
+            </g>
+
+            <!-- Select / Home / Start -->
+            <rect data-btn="view" class="svg-btn" x="174" y="264" width="48" height="16" rx="6" />
+            <text data-lbl="view" class="svg-btn-label" x="198" y="272" font-size="9">SELECT</text>
+            <rect data-btn="guide" class="svg-btn" x="256" y="264" width="48" height="16" rx="6" />
+            <text data-lbl="guide" class="svg-btn-label" x="280" y="272" font-size="9">HOME</text>
+            <rect data-btn="menu" class="svg-btn" x="338" y="264" width="48" height="16" rx="6" />
+            <text data-lbl="menu" class="svg-btn-label" x="362" y="272" font-size="9">START</text>
+          </svg>
+        </div>
+
+        <!-- Live Analog Percentages -->
+        <div class="analog-grid">
+          <div class="metric-box">
+            <div class="metric-label"><span id="lt-name">LT</span><span class="metric-val" id="lt-pct">0.0%</span></div>
+            <div class="bar-track"><div class="bar-fill" id="lt-bar"></div></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label"><span id="rt-name">RT</span><span class="metric-val" id="rt-pct">0.0%</span></div>
+            <div class="bar-track"><div class="bar-fill" id="rt-bar"></div></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label"><span>Left Stick</span><span class="metric-val" id="ls-mag">0.0%</span></div>
+            <div class="metric-val" id="ls-xy">X: 0.0% &nbsp;Y: 0.0%</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label"><span>Right Stick</span><span class="metric-val" id="rs-mag">0.0%</span></div>
+            <div class="metric-val" id="rs-xy">X: 0.0% &nbsp;Y: 0.0%</div>
+          </div>
+        </div>
+
+        <!-- Dual Stick Circularity Plots + Vibration Test -->
+        <div class="plots-row">
+          <div class="plot-card">
+            <canvas id="plot-ls" width="112" height="112"></canvas>
+            <div class="plot-meta">
+              <div class="title">Left Stick</div>
+              <div id="plot-ls-xy">0.0% / 0.0%</div>
+              <div id="plot-ls-mag">Mag: 0.0%</div>
+              <div class="err" id="plot-ls-err">Avg Err: --</div>
+            </div>
+          </div>
+          <div class="plot-card">
+            <canvas id="plot-rs" width="112" height="112"></canvas>
+            <div class="plot-meta">
+              <div class="title">Right Stick</div>
+              <div id="plot-rs-xy">0.0% / 0.0%</div>
+              <div id="plot-rs-mag">Mag: 0.0%</div>
+              <div class="err" id="plot-rs-err">Avg Err: --</div>
+            </div>
+          </div>
+          <div class="plots-controls">
+            <label class="checkbox-row">
+              <input id="circ-toggle" type="checkbox">
+              <span>Test Circularity</span>
+            </label>
+            <button id="circ-reset" class="btn" type="button">Reset Trace</button>
+            <button id="rumble-test-btn" class="btn primary" type="button" disabled>Test Vibration</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Settings & Extra-Button Mapper -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Settings &amp; Extra-Button Mapper</div>
+        </div>
+
+        <div class="settings-stack">
+          <div id="validation-errors" class="validation-errors"></div>
+
+          <!-- Virtual Profile Switcher -->
+          <div class="field-group">
+            <div class="field-label">
+              <span>Virtual Controller Profile</span>
+              <span class="field-hint">Updates preview live</span>
+            </div>
+            <div class="profile-cards">
+              <button id="prof-xbox360" class="profile-opt xbox active" type="button">
+                <span class="p-title">Xbox 360 (045E:028E)</span>
+                <span class="p-sub">Default &bull; A/B/X/Y icons</span>
+              </button>
+              <button id="prof-ds4" class="profile-opt ds4" type="button">
+                <span class="p-title">DualShock 4 (054C:09CC)</span>
+                <span class="p-sub">Opt-in &bull; PS5 Remote Play</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Polling Rate Cap -->
+          <div class="field-group">
+            <div class="field-label">
+              <span>Virtual Emit Rate Cap</span>
+              <span class="field-hint">Button edges always flush losslessly</span>
+            </div>
+            <div class="rate-pills">
+              <button class="rate-pill" data-rate="250" type="button">250 Hz</button>
+              <button class="rate-pill" data-rate="500" type="button">500 Hz</button>
+              <button class="rate-pill active" data-rate="1000" type="button">1000 Hz</button>
+              <button class="rate-pill" data-rate="0" type="button">Uncapped</button>
+            </div>
+          </div>
+
+          <!-- Rumble Toggle -->
+          <div class="toggle-row">
+            <div>
+              <div style="font-weight: 700; font-size: 13px;">Force Feedback / Rumble</div>
+              <div class="field-hint">Forwards Android EV_FF rumble to XInput motors</div>
+            </div>
+            <label class="switch">
+              <input id="rumble-toggle" type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Extra Buttons L4/R4/L5/R5 -->
+          <div class="field-group">
+            <div class="field-label">
+              <span>Extra Buttons (L4, R4, L5, R5)</span>
+              <span class="field-hint">Decoded from vendor HID 0x12</span>
+            </div>
+            <div class="preset-row">
+              <button class="preset-btn active" data-preset="pc_keys" type="button">PC Keys (F1&ndash;F4)</button>
+              <button class="preset-btn" data-preset="gamepad_mirrors" type="button">Gamepad Mirrors (L3/R3/LB/RB)</button>
+              <button class="preset-btn" data-preset="custom" type="button">Custom</button>
+            </div>
+            <div id="extra-buttons-list" class="extra-grid"></div>
+          </div>
+
+          <!-- Sticky Save Bar -->
+          <div id="save-bar" class="save-bar">
+            <span class="dirty-badge">Unsaved changes</span>
+            <div class="save-actions">
+              <button id="reset-defaults-btn" class="btn" type="button">Reset to Defaults</button>
+              <button id="discard-btn" class="btn" type="button" disabled>Discard</button>
+              <button id="save-btn" class="btn primary" type="button" disabled>Save &amp; Apply</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Collapsible Day-1 Diagnostics Drawer -->
+    <details class="diag-drawer">
+      <summary>
+        <span>Day-1 Hardware Diagnostics (USB Probe &amp; 10s Packet Capture)</span>
+        <span class="field-hint">Tap to expand</span>
+      </summary>
+      <div class="diag-body">
+        <div class="diag-actions">
+          <button id="probe-btn" class="btn" type="button">Run USB Probe</button>
+          <button id="capture-btn" class="btn amber" type="button">Record 10s Capture (.jsonl)</button>
+          <div id="capture-progress" class="capture-progress">
+            <div class="bar-track"><div id="capture-bar" class="bar-fill"></div></div>
+            <span id="capture-status" class="metric-val">0s / 10s</span>
+          </div>
+        </div>
+        <div id="probe-output"></div>
+      </div>
+    </details>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const SUPPORTED_KEYS = [
+        "KEY_F1","KEY_F2","KEY_F3","KEY_F4","KEY_F5","KEY_F6",
+        "KEY_F7","KEY_F8","KEY_F9","KEY_F10","KEY_F11","KEY_F12",
+        "KEY_TAB","KEY_ESC","KEY_LEFTSHIFT","KEY_RIGHTSHIFT",
+        "KEY_LEFTCTRL","KEY_RIGHTCTRL","KEY_LEFTALT","KEY_RIGHTALT",
+        "KEY_SPACE","KEY_ENTER","KEY_BACKSPACE",
+        "KEY_1","KEY_2","KEY_3","KEY_4","KEY_5","KEY_6","KEY_7","KEY_8","KEY_9","KEY_0",
+        "KEY_Q","KEY_E","KEY_R","KEY_F","KEY_G","KEY_I","KEY_M","KEY_C","KEY_V","KEY_X","KEY_Z"
+      ];
+      const GAMEPAD_BUTTONS = [
+        "L3","R3","LB","RB","A","B","X","Y","VIEW","MENU","GUIDE",
+        "DPAD_UP","DPAD_DOWN","DPAD_LEFT","DPAD_RIGHT"
+      ];
+      const EXTRA_SLOTS = ["l4", "r4", "l5", "r5"];
+      const DEFAULT_CONFIG = {
+        profile: "xbox360",
+        emit_rate_hz: 1000,
+        extra_pids: [],
+        enable_rumble: true,
+        extra_buttons: {
+          l4: { type: "key", code: "KEY_F1" },
+          r4: { type: "key", code: "KEY_F2" },
+          l5: { type: "key", code: "KEY_F3" },
+          r5: { type: "key", code: "KEY_F4" }
+        },
+        hid12_layout: {
+          report_id: 18,
+          min_length: 16,
+          l4: { byte_offset: 13, mask: 1 },
+          r4: { byte_offset: 13, mask: 2 },
+          l5: { byte_offset: 13, mask: 4 },
+          r5: { byte_offset: 13, mask: 8 },
+          gyro: { byte_offset: 16, length: 12 }
+        },
+        web_ui: { enabled: true, bind: "127.0.0.1:8787" },
+        pid_file: "/data/local/tmp/g7pro8k/daemon.pid"
+      };
+
+      let savedConfig = structuredClone(DEFAULT_CONFIG);
+      let draftConfig = structuredClone(DEFAULT_CONFIG);
+      let viewMode = "auto";
+      let latestStatus = null;
+      let latestTelemetry = null;
+      let circEnabled = false;
+      const CIRC_BUCKETS = 72;
+      const circState = {
+        ls: new Float32Array(CIRC_BUCKETS),
+        rs: new Float32Array(CIRC_BUCKETS)
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      function showToast(msg) {
+        const t = $("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(() => t.classList.remove("show"), 2600);
+      }
+
+      function buildExtraRows() {
+        const container = $("extra-buttons-list");
+        container.innerHTML = "";
+        for (const slot of EXTRA_SLOTS) {
+          const row = document.createElement("div");
+          row.className = "extra-row";
+
+          const tag = document.createElement("div");
+          tag.className = "extra-tag";
+          tag.textContent = slot.toUpperCase();
+
+          const typeSel = document.createElement("select");
+          typeSel.id = `extra-type-${slot}`;
+          typeSel.innerHTML = `
+            <option value="key">Keyboard Key</option>
+            <option value="gamepad">Gamepad Button</option>
+            <option value="disabled">Disabled</option>
+          `;
+
+          const targetSel = document.createElement("select");
+          targetSel.id = `extra-target-${slot}`;
+
+          typeSel.addEventListener("change", () => {
+            const kind = typeSel.value;
+            if (kind === "key") {
+              draftConfig.extra_buttons[slot] = { type: "key", code: "KEY_F1" };
+            } else if (kind === "gamepad") {
+              draftConfig.extra_buttons[slot] = { type: "gamepad", button: "L3" };
+            } else {
+              draftConfig.extra_buttons[slot] = { type: "disabled" };
+            }
+            populateTargetSelect(slot);
+            syncFormUI();
+          });
+
+          targetSel.addEventListener("change", () => {
+            const cur = draftConfig.extra_buttons[slot];
+            if (cur.type === "key") {
+              cur.code = targetSel.value;
+            } else if (cur.type === "gamepad") {
+              cur.button = targetSel.value;
+            }
+            syncFormUI();
+          });
+
+          row.append(tag, typeSel, targetSel);
+          container.appendChild(row);
+        }
+      }
+
+      function populateTargetSelect(slot) {
+        const cur = draftConfig.extra_buttons[slot];
+        const sel = $(`extra-target-${slot}`);
+        sel.innerHTML = "";
+        if (cur.type === "key") {
+          sel.disabled = false;
+          for (const k of SUPPORTED_KEYS) {
+            const opt = document.createElement("option");
+            opt.value = k;
+            opt.textContent = k;
+            sel.appendChild(opt);
+          }
+          sel.value = cur.code;
+        } else if (cur.type === "gamepad") {
+          sel.disabled = false;
+          for (const b of GAMEPAD_BUTTONS) {
+            const opt = document.createElement("option");
+            opt.value = b;
+            opt.textContent = b;
+            sel.appendChild(opt);
+          }
+          sel.value = cur.button;
+        } else {
+          sel.disabled = true;
+          const opt = document.createElement("option");
+          opt.textContent = "Disabled";
+          sel.appendChild(opt);
+        }
+      }
+
+      function detectExtraPreset(eb) {
+        const isPcKeys =
+          eb.l4.type === "key" && eb.l4.code === "KEY_F1" &&
+          eb.r4.type === "key" && eb.r4.code === "KEY_F2" &&
+          eb.l5.type === "key" && eb.l5.code === "KEY_F3" &&
+          eb.r5.type === "key" && eb.r5.code === "KEY_F4";
+        if (isPcKeys) return "pc_keys";
+        const isMirrors =
+          eb.l4.type === "gamepad" && eb.l4.button === "L3" &&
+          eb.r4.type === "gamepad" && eb.r4.button === "R3" &&
+          eb.l5.type === "gamepad" && eb.l5.button === "LB" &&
+          eb.r5.type === "gamepad" && eb.r5.button === "RB";
+        if (isMirrors) return "gamepad_mirrors";
+        return "custom";
+      }
+
+      function isDirty() {
+        return JSON.stringify(draftConfig) !== JSON.stringify(savedConfig);
+      }
+
+      function syncFormUI() {
+        $("prof-xbox360").classList.toggle("active", draftConfig.profile === "xbox360");
+        $("prof-ds4").classList.toggle("active", draftConfig.profile === "ds4");
+
+        document.querySelectorAll(".rate-pill").forEach((btn) => {
+          btn.classList.toggle("active", Number(btn.dataset.rate) === draftConfig.emit_rate_hz);
+        });
+
+        $("rumble-toggle").checked = Boolean(draftConfig.enable_rumble);
+
+        for (const slot of EXTRA_SLOTS) {
+          const cur = draftConfig.extra_buttons[slot];
+          $(`extra-type-${slot}`).value = cur.type;
+          populateTargetSelect(slot);
+        }
+
+        const preset = detectExtraPreset(draftConfig.extra_buttons);
+        document.querySelectorAll(".preset-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.preset === preset);
+        });
+
+        const dirty = isDirty();
+        $("save-bar").classList.toggle("dirty", dirty);
+        $("save-btn").disabled = !dirty;
+        $("discard-btn").disabled = !dirty;
+
+        updateActiveSvgAndTheme();
+      }
+
+      function isGamesirConnected() {
+        const st = latestTelemetry?.connection_state || latestStatus?.connection_state || "disconnected";
+        return st === "connected_wired" || st === "connected_dongle";
+      }
+
+      function resolveDisplayedController() {
+        if (viewMode === "odin3") return "odin3";
+        if (viewMode === "gamesir") return draftConfig.profile;
+        return isGamesirConnected() ? draftConfig.profile : "odin3";
+      }
+
+      function updateActiveSvgAndTheme() {
+        const display = resolveDisplayedController();
+        document.body.dataset.theme = display;
+
+        $("svg-xbox360").classList.toggle("active", display === "xbox360");
+        $("svg-ds4").classList.toggle("active", display === "ds4");
+        $("svg-odin3").classList.toggle("active", display === "odin3");
+
+        const headingMap = {
+          xbox360: "GameSir G7 Pro 8K \u2022 Xbox 360 Profile",
+          ds4: "GameSir G7 Pro 8K \u2022 DualShock 4 Profile",
+          odin3: "AYN Odin 3 Built-in Controller (Read-Only)"
+        };
+        $("tester-heading").textContent = headingMap[display];
+
+        const isPs = display === "ds4" || display === "odin3";
+        $("lt-name").textContent = isPs ? "L2" : "LT";
+        $("rt-name").textContent = isPs ? "R2" : "RT";
+      }
+
+      function renderControllerSvg(svgId, telemetry) {
+        const svg = $(svgId);
+        if (!svg || !telemetry) return;
+
+        const btns = telemetry.buttons || {};
+        svg.querySelectorAll("[data-btn]").forEach((el) => {
+          const pressed = Boolean(btns[el.dataset.btn]);
+          el.classList.toggle("pressed", pressed);
+          const lbl = svg.querySelector(`[data-lbl="${el.dataset.btn}"]`);
+          if (lbl) lbl.classList.toggle("pressed", pressed);
+        });
+
+        const extra = telemetry.extra || {};
+        svg.querySelectorAll("[data-extra]").forEach((el) => {
+          const pressed = Boolean(extra[el.dataset.extra]);
+          el.classList.toggle("pressed", pressed);
+          const lbl = svg.querySelector(`[data-extra-lbl="${el.dataset.extra}"]`);
+          if (lbl) lbl.classList.toggle("pressed", pressed);
+        });
+
+        const a = telemetry.analog || {
+          lt_pct: 0, rt_pct: 0, lx_pct: 0, ly_pct: 0, rx_pct: 0, ry_pct: 0, ls_mag_pct: 0, rs_mag_pct: 0
+        };
+
+        const ltBar = svg.querySelector('[data-trig-bar="lt"]');
+        const rtBar = svg.querySelector('[data-trig-bar="rt"]');
+        if (ltBar) {
+          const h = Math.round((a.lt_pct / 100) * 24);
+          const baseY = svgId === "svg-odin3" ? 44 : 40;
+          ltBar.setAttribute("height", String(h));
+          ltBar.setAttribute("y", String(baseY - h));
+        }
+        if (rtBar) {
+          const h = Math.round((a.rt_pct / 100) * 24);
+          const baseY = svgId === "svg-odin3" ? 44 : 40;
+          rtBar.setAttribute("height", String(h));
+          rtBar.setAttribute("y", String(baseY - h));
+        }
+
+        const lsGroup = svg.querySelector('[data-stick="ls"]');
+        const rsGroup = svg.querySelector('[data-stick="rs"]');
+        const maxShift = svgId === "svg-odin3" ? 11 : 13;
+        if (lsGroup) {
+          const dx = ((a.lx_pct / 100) * maxShift).toFixed(1);
+          const dy = ((-a.ly_pct / 100) * maxShift).toFixed(1);
+          lsGroup.setAttribute("transform", `translate(${dx},${dy})`);
+        }
+        if (rsGroup) {
+          const dx = ((a.rx_pct / 100) * maxShift).toFixed(1);
+          const dy = ((-a.ry_pct / 100) * maxShift).toFixed(1);
+          rsGroup.setAttribute("transform", `translate(${dx},${dy})`);
+        }
+      }
+
+      function drawStickPlot(canvasId, key, xPct, yPct, magPct) {
+        const canvas = $(canvasId);
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const r = w * 0.41;
+
+        const accent = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#22C55E";
+        ctx.clearRect(0, 0, w, h);
+
+        // Crosshairs & unit circle
+        ctx.strokeStyle = "#242D3D";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy);
+        ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#3B475C";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const nx = xPct / 100;
+        const ny = yPct / 100;
+        const rawMag = Math.hypot(nx, ny);
+
+        if (circEnabled && rawMag > 0.25) {
+          let angle = Math.atan2(ny, nx);
+          if (angle < 0) angle += Math.PI * 2;
+          const idx = Math.min(CIRC_BUCKETS - 1, Math.floor((angle / (Math.PI * 2)) * CIRC_BUCKETS));
+          if (rawMag > circState[key][idx]) {
+            circState[key][idx] = rawMag;
+          }
+        }
+
+        // Draw circularity trace
+        const buckets = circState[key];
+        let errSum = 0;
+        let sampleCount = 0;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i < CIRC_BUCKETS; i++) {
+          const val = buckets[i];
+          if (val > 0) {
+            const ang = ((i + 0.5) / CIRC_BUCKETS) * Math.PI * 2;
+            const px = cx + Math.cos(ang) * Math.min(val, 1.18) * r;
+            const py = cy - Math.sin(ang) * Math.min(val, 1.18) * r;
+            if (!started) { ctx.moveTo(px, py); started = true; }
+            else ctx.lineTo(px, py);
+            errSum += Math.abs(val - 1.0);
+            sampleCount++;
+          }
+        }
+        if (sampleCount > 2) {
+          ctx.closePath();
+          ctx.fillStyle = "rgba(34, 197, 94, 0.14)";
+          ctx.fill();
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        // Current stick vector & dot
+        const sx = cx + Math.max(-1.15, Math.min(1.15, nx)) * r;
+        const sy = cy - Math.max(-1.15, Math.min(1.15, ny)) * r;
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(sx, sy);
+        ctx.stroke();
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        const avgErr = sampleCount > 0 ? `${((errSum / sampleCount) * 100).toFixed(1)}%` : "--";
+        $(`plot-${key}-xy`).textContent = `${xPct.toFixed(1)}% / ${yPct.toFixed(1)}%`;
+        $(`plot-${key}-mag`).textContent = `Mag: ${magPct.toFixed(1)}%`;
+        $(`plot-${key}-err`).textContent = `Avg Err: ${avgErr}`;
+      }
+
+      function renderTelemetry(snap) {
+        latestTelemetry = snap;
+        $("usb-hz").textContent = String(snap.usb_hz || 0);
+        $("emit-hz").textContent = String(snap.emit_hz || 0);
+
+        updateConnectionVisuals(snap.connection_state);
+        updateActiveSvgAndTheme();
+
+        const display = resolveDisplayedController();
+        const activeTel = display === "odin3" ? snap.odin3 : snap.gamesir;
+
+        renderControllerSvg("svg-xbox360", snap.gamesir);
+        renderControllerSvg("svg-ds4", snap.gamesir);
+        renderControllerSvg("svg-odin3", snap.odin3);
+
+        const a = activeTel.analog;
+        $("lt-pct").textContent = `${a.lt_pct.toFixed(1)}%`;
+        $("rt-pct").textContent = `${a.rt_pct.toFixed(1)}%`;
+        $("lt-bar").style.width = `${Math.min(100, Math.max(0, a.lt_pct))}%`;
+        $("rt-bar").style.width = `${Math.min(100, Math.max(0, a.rt_pct))}%`;
+        $("ls-mag").textContent = `${a.ls_mag_pct.toFixed(1)}%`;
+        $("rs-mag").textContent = `${a.rs_mag_pct.toFixed(1)}%`;
+        $("ls-xy").textContent = `X: ${a.lx_pct.toFixed(1)}%  Y: ${a.ly_pct.toFixed(1)}%`;
+        $("rs-xy").textContent = `X: ${a.rx_pct.toFixed(1)}%  Y: ${a.ry_pct.toFixed(1)}%`;
+
+        drawStickPlot("plot-ls", "ls", a.lx_pct, a.ly_pct, a.ls_mag_pct);
+        drawStickPlot("plot-rs", "rs", a.rx_pct, a.ry_pct, a.rs_mag_pct);
+      }
+
+      function updateConnectionVisuals(connState) {
+        const pill = $("conn-pill");
+        const lbl = $("conn-label");
+        const pauseBtn = $("pause-btn");
+        const rumbleBtn = $("rumble-test-btn");
+
+        pill.className = "pill";
+        let connected = false;
+
+        if (connState === "connected_dongle") {
+          pill.classList.add("ok");
+          lbl.textContent = "GameSir G7 Pro 8K \u2022 2.4GHz Dongle";
+          connected = true;
+        } else if (connState === "connected_wired") {
+          pill.classList.add("ok");
+          lbl.textContent = "GameSir G7 Pro 8K \u2022 USB-C Wired";
+          connected = true;
+        } else if (connState === "quirk_10b8") {
+          pill.classList.add("warn");
+          lbl.textContent = "10b8 Fallback Warning";
+        } else if (connState === "paused") {
+          pill.classList.add("paused");
+          lbl.textContent = "Paused";
+        } else {
+          pill.classList.add("warn");
+          lbl.textContent = "Disconnected";
+        }
+
+        const paused = connState === "paused";
+        pauseBtn.textContent = paused ? "Resume Daemon" : "Pause Daemon";
+        rumbleBtn.disabled = !connected;
+
+        $("quirk-banner").classList.toggle("show", connState === "quirk_10b8");
+        $("disconnected-banner").classList.toggle("show", connState === "disconnected");
+      }
+
+      async function fetchStatus() {
+        try {
+          const res = await fetch("/api/status");
+          if (!res.ok) return;
+          latestStatus = await res.json();
+          updateConnectionVisuals(latestStatus.connection_state);
+          const odin = latestStatus.odin3;
+          if (odin && odin.state === "active") {
+            $("odin-label").textContent = `Built-in Odin 3: ${odin.name} (Untouched)`;
+          } else {
+            $("odin-label").textContent = "Built-in Odin 3: Active & Untouched (Isolated)";
+          }
+        } catch (_) {}
+      }
+
+      async function fetchConfig() {
+        try {
+          const res = await fetch("/api/config");
+          if (!res.ok) return;
+          const cfg = await res.json();
+          savedConfig = structuredClone(cfg);
+          draftConfig = structuredClone(cfg);
+          syncFormUI();
+        } catch (_) {}
+      }
+
+      async function saveConfig() {
+        const errBox = $("validation-errors");
+        errBox.classList.remove("show");
+        errBox.innerHTML = "";
+        try {
+          const res = await fetch("/api/config", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(draftConfig)
+          });
+          const body = await res.json();
+          if (!res.ok) {
+            const list = (body.fields || []).map((f) => `<li><code>${f.field}</code>: ${f.message}</li>`).join("");
+            errBox.innerHTML = `<strong>Validation failed:</strong><ul>${list || `<li>${body.error || "Invalid config"}</li>`}</ul>`;
+            errBox.classList.add("show");
+            return;
+          }
+          savedConfig = structuredClone(body);
+          draftConfig = structuredClone(body);
+          syncFormUI();
+          showToast("Saved config.json & hot-reloaded daemon!");
+        } catch (err) {
+          showToast(`Save failed: ${err.message}`);
+        }
+      }
+
+      function connectWebSocket() {
+        let retryMs = 800;
+        function open() {
+          const proto = location.protocol === "https:" ? "wss:" : "ws:";
+          const ws = new WebSocket(`${proto}//${location.host}/ws/live`);
+          ws.addEventListener("open", () => {
+            retryMs = 800;
+            $("ws-banner").classList.remove("show");
+            fetchStatus();
+          });
+          ws.addEventListener("message", (ev) => {
+            try {
+              renderTelemetry(JSON.parse(ev.data));
+            } catch (_) {}
+          });
+          ws.addEventListener("close", () => {
+            $("ws-banner").classList.add("show");
+            $("ws-retry").textContent = `Retrying in ${(retryMs / 1000).toFixed(1)}s`;
+            setTimeout(open, retryMs);
+            retryMs = Math.min(5000, Math.round(retryMs * 1.5));
+          });
+          ws.addEventListener("error", () => ws.close());
+        }
+        open();
+      }
+
+      // Wire UI Controls
+      buildExtraRows();
+      syncFormUI();
+
+      document.querySelectorAll(".seg-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          viewMode = btn.dataset.view;
+          document.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("active", b === btn));
+          updateActiveSvgAndTheme();
+          if (latestTelemetry) renderTelemetry(latestTelemetry);
+        });
+      });
+
+      $("prof-xbox360").addEventListener("click", () => { draftConfig.profile = "xbox360"; syncFormUI(); });
+      $("prof-ds4").addEventListener("click", () => { draftConfig.profile = "ds4"; syncFormUI(); });
+
+      document.querySelectorAll(".rate-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          draftConfig.emit_rate_hz = Number(btn.dataset.rate);
+          syncFormUI();
+        });
+      });
+
+      $("rumble-toggle").addEventListener("change", (e) => {
+        draftConfig.enable_rumble = e.target.checked;
+        syncFormUI();
+      });
+
+      document.querySelectorAll(".preset-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const preset = btn.dataset.preset;
+          if (preset === "pc_keys") {
+            draftConfig.extra_buttons = {
+              l4: { type: "key", code: "KEY_F1" },
+              r4: { type: "key", code: "KEY_F2" },
+              l5: { type: "key", code: "KEY_F3" },
+              r5: { type: "key", code: "KEY_F4" }
+            };
+          } else if (preset === "gamepad_mirrors") {
+            draftConfig.extra_buttons = {
+              l4: { type: "gamepad", button: "L3" },
+              r4: { type: "gamepad", button: "R3" },
+              l5: { type: "gamepad", button: "LB" },
+              r5: { type: "gamepad", button: "RB" }
+            };
+          }
+          syncFormUI();
+        });
+      });
+
+      $("save-btn").addEventListener("click", saveConfig);
+      $("discard-btn").addEventListener("click", () => {
+        draftConfig = structuredClone(savedConfig);
+        $("validation-errors").classList.remove("show");
+        syncFormUI();
+        showToast("Discarded unsaved edits");
+      });
+      $("reset-defaults-btn").addEventListener("click", () => {
+        draftConfig = structuredClone(DEFAULT_CONFIG);
+        syncFormUI();
+        showToast("Loaded defaults (tap Save & Apply to persist)");
+      });
+
+      $("pause-btn").addEventListener("click", async () => {
+        const paused = (latestTelemetry?.connection_state || latestStatus?.connection_state) === "paused";
+        const endpoint = paused ? "/api/daemon/resume" : "/api/daemon/pause";
+        try {
+          const res = await fetch(endpoint, { method: "POST" });
+          if (res.ok) {
+            await fetchStatus();
+            showToast(paused ? "Daemon resumed" : "Daemon paused & USB released");
+          }
+        } catch (err) {
+          showToast(`Action failed: ${err.message}`);
+        }
+      });
+
+      $("rumble-test-btn").addEventListener("click", async () => {
+        try {
+          const res = await fetch("/api/rumble-test", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ large_motor: 210, small_motor: 165, duration_ms: 300 })
+          });
+          if (res.ok) showToast("Triggered 300ms dual-motor rumble test");
+          else showToast("Connect GameSir G7 Pro 8K to test vibration");
+        } catch (err) {
+          showToast(`Rumble test failed: ${err.message}`);
+        }
+      });
+
+      $("circ-toggle").addEventListener("change", (e) => {
+        circEnabled = e.target.checked;
+        if (!circEnabled) {
+          circState.ls.fill(0);
+          circState.rs.fill(0);
+        }
+      });
+      $("circ-reset").addEventListener("click", () => {
+        circState.ls.fill(0);
+        circState.rs.fill(0);
+        if (latestTelemetry) renderTelemetry(latestTelemetry);
+      });
+
+      $("probe-btn").addEventListener("click", async () => {
+        const out = $("probe-output");
+        out.textContent = "Probing USB bus...";
+        try {
+          const res = await fetch("/api/probe");
+          const data = await res.json();
+          if (!res.ok) {
+            out.textContent = `Probe failed: ${data.error || res.status}`;
+            return;
+          }
+          let html = `<table class="probe-table"><thead><tr><th>Bus:Addr</th><th>VID:PID</th><th>Product</th><th>Status</th><th>Interfaces</th></tr></thead><tbody>`;
+          for (const d of data.devices || []) {
+            const cls = d.classification?.kind || "ignored";
+            const ifaces = (d.interfaces || []).map((i) => `if${i.interface_number}(${i.class}/${i.subclass}/${i.protocol}, ${i.endpoints.length}ep)`).join(", ") || "-";
+            html += `<tr><td>${d.bus_id}:${d.device_address}</td><td>${d.vid}:${d.pid}</td><td>${d.product || "-"}</td><td>${cls}</td><td>${ifaces}</td></tr>`;
+          }
+          html += `</tbody></table>`;
+          out.innerHTML = html;
+        } catch (err) {
+          out.textContent = `Probe error: ${err.message}`;
+        }
+      });
+
+      $("capture-btn").addEventListener("click", async () => {
+        const btn = $("capture-btn");
+        const prog = $("capture-progress");
+        const bar = $("capture-bar");
+        const statusEl = $("capture-status");
+        const durationSecs = 10;
+
+        btn.disabled = true;
+        prog.classList.add("show");
+        const start = performance.now();
+        const timer = setInterval(() => {
+          const elapsed = Math.min(durationSecs, (performance.now() - start) / 1000);
+          bar.style.width = `${(elapsed / durationSecs) * 100}%`;
+          statusEl.textContent = `${elapsed.toFixed(1)}s / ${durationSecs}s`;
+        }, 120);
+
+        try {
+          const res = await fetch("/api/capture", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ duration_secs: durationSecs })
+          });
+          const text = await res.text();
+          const count = res.headers.get("X-Capture-Packets") || "0";
+          const blob = new Blob([text], { type: "application/x-ndjson" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "g7pro8k-capture.jsonl";
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast(`Downloaded g7pro8k-capture.jsonl (${count} packets)`);
+        } catch (err) {
+          showToast(`Capture failed: ${err.message}`);
+        } finally {
+          clearInterval(timer);
+          bar.style.width = "100%";
+          btn.disabled = false;
+          setTimeout(() => prog.classList.remove("show"), 900);
+        }
+      });
+
+      // Initialize plots & connect
+      drawStickPlot("plot-ls", "ls", 0, 0, 0);
+      drawStickPlot("plot-rs", "rs", 0, 0, 0);
+      fetchConfig();
+      fetchStatus();
+      connectWebSocket();
+      setInterval(fetchStatus, 2500);
+    })();
+  </script>
+</body>
+</html>

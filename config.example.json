@@ -1,0 +1,26 @@
+{
+  "profile": "xbox360",
+  "emit_rate_hz": 1000,
+  "extra_pids": [],
+  "enable_rumble": true,
+  "extra_buttons": {
+    "l4": { "type": "key", "code": "KEY_F1" },
+    "r4": { "type": "key", "code": "KEY_F2" },
+    "l5": { "type": "key", "code": "KEY_F3" },
+    "r5": { "type": "key", "code": "KEY_F4" }
+  },
+  "hid12_layout": {
+    "report_id": 18,
+    "min_length": 16,
+    "l4": { "byte_offset": 13, "mask": 1 },
+    "r4": { "byte_offset": 13, "mask": 2 },
+    "l5": { "byte_offset": 13, "mask": 4 },
+    "r5": { "byte_offset": 13, "mask": 8 },
+    "gyro": { "byte_offset": 16, "length": 12 }
+  },
+  "web_ui": {
+    "enabled": true,
+    "bind": "127.0.0.1:8787"
+  },
+  "pid_file": "/data/local/tmp/g7pro8k/daemon.pid"
+}
